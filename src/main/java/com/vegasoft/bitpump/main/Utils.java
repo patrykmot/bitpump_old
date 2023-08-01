@@ -7,8 +7,13 @@ import java.io.InputStream;
 
 public class Utils {
 
-    private static Logger logger = LoggerFactory.getLogger(Utils.class);
+    private static final Logger logger = LoggerFactory.getLogger(Utils.class);
 
+    public static final String FILE_CSV = "data/Bitstamp_BTCUSD_1h.csv";
+
+    public static Logger log() {
+        return logger;
+    }
     public static InputStream openFile(String fileName) {
         logger.info("Opening file {}", fileName);
         InputStream is = ClassLoader.getSystemResourceAsStream(fileName);

@@ -22,8 +22,9 @@ public class CSVLoader {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+           throw new BitpumpException("Can't parse file " + path, e);
         }
+        Utils.log().info("Parsed {} rows from file.", gd.getRowCount());
         return gd;
     }
 }
