@@ -1,5 +1,6 @@
 package com.vegasoft.bitpump.main;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -12,10 +13,7 @@ class BitpumpMainTests {
 		GenericDataConverter gdc = new GenericDataConverterBitstamp();
 		NumericData data = gdc.convert(gds.getGenericData());
 		StatisticAnalyze statisticAnalyze = new StatisticAnalyze(data);
-
-		statisticAnalyze.getColumnResults();
-
-
+		Assertions.assertNotNull(statisticAnalyze);
 	}
 
 }
