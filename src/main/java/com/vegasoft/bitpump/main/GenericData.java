@@ -30,4 +30,8 @@ public class GenericData {
     public int getRowCount() {
         return data.size();
     }
+
+    public List<String> getRow(int rowIndex) {
+        return data.get(rowIndex);
+    }
 }

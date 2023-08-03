@@ -8,6 +8,14 @@ class BitpumpMainTests {
 
 	@Test
 	void contextLoads() {
+		GenericDataSource gds = new GenericDataSourceCSV(Utils.FILE_CSV);
+		GenericDataConverter gdc = new GenericDataConverterBitstamp();
+		NumericData data = gdc.convert(gds.getGenericData());
+		StatisticAnalyze statisticAnalyze = new StatisticAnalyze(data);
+
+		statisticAnalyze.getColumnResults();
+
+
 	}
 
 }

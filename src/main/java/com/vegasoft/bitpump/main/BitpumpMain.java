@@ -9,9 +9,7 @@ public class BitpumpMain {
 	public static void main(String[] args) {
 		SpringApplication.run(BitpumpMain.class, args);
 
-		GenericDataSource gds = new GenericDataSourceCSV(Utils.FILE_CSV);
-		GenericDataConverter gdc = new GenericDataConverterBitstamp();
-		NumericData data = gdc.convert(gds.getGenericData());
+
 
 
 
