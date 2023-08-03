@@ -7,6 +7,9 @@ public class StatisticalResultTO {
     private double standardDeviation;
     private double minValue;
     private double maxValue;
+    private Integer rowNumber;
+    private Integer columnNumber;
+    private boolean unique = true;
 
     public StatisticalResultTO(double mean, double median, double variance, double standardDeviation, double minValue, double maxValue) {
         this.mean = mean;
@@ -15,6 +18,22 @@ public class StatisticalResultTO {
         this.standardDeviation = standardDeviation;
         this.minValue = minValue;
         this.maxValue = maxValue;
+    }
+
+    public Integer getRowNumber() {
+        return rowNumber;
+    }
+
+    public void setRowNumber(Integer rowNumber) {
+        this.rowNumber = rowNumber;
+    }
+
+    public Integer getColumnNumber() {
+        return columnNumber;
+    }
+
+    public void setColumnNumber(Integer columnNumber) {
+        this.columnNumber = columnNumber;
     }
 
     public double getMean() {
@@ -41,6 +60,14 @@ public class StatisticalResultTO {
         return maxValue;
     }
 
+    public boolean isUnique() {
+        return unique;
+    }
+
+    public void setUnique(boolean unique) {
+        this.unique = unique;
+    }
+
     @Override
     public String toString() {
         return "StatisticalResultTO{" +
@@ -50,6 +77,7 @@ public class StatisticalResultTO {
                 ", standardDeviation=" + standardDeviation +
                 ", minValue=" + minValue +
                 ", maxValue=" + maxValue +
+                ", unique=" + unique +
                 '}';
     }
 }
