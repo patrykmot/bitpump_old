@@ -8,11 +8,13 @@ public class NumericData {
     private List<String> columnDescription;
     private List<double[]> data; // data row list
     private List<String> rowIds;
+    private List<Long> timeStamp;
 
-    public NumericData(List<String> columnDescription, List<double[]> data, List<String> rowIds) {
+    public NumericData(List<String> columnDescription, List<double[]> data, List<String> rowIds, List<Long> timeStamp) {
         this.columnDescription = columnDescription;
         this.data = data;
         this.rowIds = rowIds;
+        this.timeStamp = timeStamp;
         doValidation();
     }
 
@@ -24,6 +26,9 @@ public class NumericData {
         }
         if (rowIds.size() != data.size()) {
             throw new BitpumpException("Size of ids and data are different!");
+        }
+        if (timeStamp.size() != data.size()) {
+            throw new BitpumpException("Size of timeStamp and data are different!");
         }
     }
 
@@ -58,6 +63,7 @@ public class NumericData {
             int index = rowIds.indexOf(notUniqueRowsIds.get(i));
             rowIds.remove(index);
             data.remove(index);
+            timeStamp.remove(index);
         }
         doValidation();
     }

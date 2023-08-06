@@ -8,7 +8,7 @@ class CSVLoaderTest {
     @Test
     public void testIt() {
         CSVLoader loader = new CSVLoader();
-        GenericData gd = loader.readCSV(Utils.FILE_CSV);
+        GenericData gd = loader.readCSV(Utils.FILE_BITCOIN_CSV);
 
         Assertions.assertNotNull(gd);
         Assertions.assertEquals(45621, gd.getRowCount());

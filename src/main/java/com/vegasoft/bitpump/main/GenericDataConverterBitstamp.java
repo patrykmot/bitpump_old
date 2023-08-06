@@ -1,11 +1,8 @@
 package com.vegasoft.bitpump.main;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
-public class GenericDataConverterBitstamp implements GenericDataConverter {
+public class GenericDataConverterBitstamp extends GenericDataConverter {
 
     // Example of input data
     //    https://www.CryptoDataDownload.com
@@ -18,14 +15,6 @@ public class GenericDataConverterBitstamp implements GenericDataConverter {
 
     @Override
     public NumericData convert(GenericData genericData) {
-        List<double[]> data = new ArrayList<>(100);
-        for (int row = 2; row < genericData.getRowCount(); ++row) {
-            double[] rowArray = genericData.getRow(row).subList(PRICE_START_INDEX, PRICE_STOP_INDEX).stream().mapToDouble(s -> Double.parseDouble(s)).toArray();
-            data.add(rowArray);
-        }
-        List<String> columnDescriptions = genericData.getRow(1).subList(PRICE_START_INDEX, PRICE_STOP_INDEX);
-        List<String> rowIds = data.stream().map(d -> Long.toString(ids.incrementAndGet())).collect(Collectors.toList());
-        NumericData nd = new NumericData(columnDescriptions, data, rowIds);
-        return nd;
+        return getNumericData(genericData, PRICE_START_INDEX, PRICE_STOP_INDEX, ids, s -> Long.parseLong(s) * 1000, 0);
     }
 }
