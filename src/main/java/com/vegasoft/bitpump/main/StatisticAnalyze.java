@@ -134,12 +134,26 @@ public class StatisticAnalyze {
 
     public List<double[]> getNotUniqueData() {
         return getNotUniqueResults().stream().map(r -> {
-            if (r.getColumnNumber() != null) {
+            if (isColumn(r)) {
                 return this.data.getColumn(r.getColumnNumber());
             } else {
                 return this.data.getRow(r.getRowNumber());
             }
         }).collect(Collectors.toList());
+    }
+
+    private boolean isColumn(StatisticalResultTO r) {
+        return r.getColumnNumber() != null;
+    }
+
+    private boolean isRow(StatisticalResultTO r) {
+        return !isColumn(r);
+    }
+
+    public List<String> getNotUniqueRowIds() {
+        return getNotUniqueResults().stream().filter(this::isRow)
+                .map(r -> data.getRowId(r.getRowNumber()))
+                .collect(Collectors.toList());
     }
 
 
