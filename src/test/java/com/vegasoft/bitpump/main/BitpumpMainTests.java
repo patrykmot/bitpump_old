@@ -38,10 +38,15 @@ class BitpumpMainTests {
 		Assertions.assertTrue(notUniqueRowsIds.isEmpty());
 
 		// Stage II - Load and prepare S&P 500 prices
+		Utils.log().info("Merging bitcoin data with S&P 500");
 		GenericDataSource gds_SP500 = new GenericDataSourceCSV(Utils.FILE_SP500_CSV);
 		GenericDataConverter gdc_SP500 = new GenericDataConverterSP500();
 		NumericData data_SP500 = gdc_SP500.convert(gds_SP500.getGenericData());
-		StatisticAnalyze statisticAnalyze_SP500 = new StatisticAnalyze(data_SP500);
+
+		// Merge S&P 500 into Bitcoin data
+		data_bitcoin.mergeWithTimestamp(data_SP500);
+		Utils.log().info("Done!");
+
 
 	}
 
