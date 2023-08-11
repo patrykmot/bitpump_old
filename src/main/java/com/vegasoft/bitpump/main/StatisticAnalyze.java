@@ -27,21 +27,19 @@ public class StatisticAnalyze {
     }
 
     public void calculate() {
-        rowResults = new ArrayList<>(data.getRowCount());
-        columnResults = new ArrayList<>(data.getColumnCount());
-        rowVectors = new ArrayList<>(data.getRowCount());
-        columnVectors = new ArrayList<>(data.getRowCount());
+        reset();
 
         // Calculate statistics for each row and then for each column in numeric data
         // Row
-        for (int row = 0; row < data.getRowCount(); row++) {
-            double[] rowData = data.getRow(row);
-            StatisticalResultTO result = calculateStatistics(rowData);
-            result.setRowNumber(row);
-            rowVectors.add(new ArrayRealVector(rowData));
-            rowResults.add(result);
-        }
+        calculatePerRow();
+
         // Column
+        calculatePerColumn();
+
+        calculateIfVectorsAreUnique();
+    }
+
+    private void calculatePerColumn() {
         for (int column = 0; column < data.getColumnCount(); column++) {
             double[] columnData = data.getColumn(column);
             StatisticalResultTO result = calculateStatistics(columnData);
@@ -49,7 +47,23 @@ public class StatisticAnalyze {
             columnVectors.add(new ArrayRealVector(columnData));
             columnResults.add(result);
         }
-        calculateIfVectorsAreUnique();
+    }
+
+    private void reset() {
+        rowResults = new ArrayList<>(data.getRowCount());
+        columnResults = new ArrayList<>(data.getColumnCount());
+        rowVectors = new ArrayList<>(data.getRowCount());
+        columnVectors = new ArrayList<>(data.getRowCount());
+    }
+
+    private void calculatePerRow() {
+        for (int row = 0; row < data.getRowCount(); row++) {
+            double[] rowData = data.getRow(row);
+            StatisticalResultTO result = calculateStatistics(rowData);
+            result.setRowNumber(row);
+            rowVectors.add(new ArrayRealVector(rowData));
+            rowResults.add(result);
+        }
     }
 
     private void calculateIfVectorsAreUnique() {
@@ -59,7 +73,6 @@ public class StatisticAnalyze {
 
     private void calculateUniqueness(List<RealVector> vectors, List<StatisticalResultTO> results) {
         for (int left = 0; left < vectors.size() - 1; ++left) {
-//            Utils.log().info("Calculate uniqueness for {} / {} ", left, vectors.size());
             for (int right = left + 1; right < vectors.size(); ++right) {
                 RealVector leftVector = vectors.get(left);
                 RealVector rightVector = vectors.get(right);
@@ -159,5 +172,30 @@ public class StatisticAnalyze {
 
     private List<StatisticalResultTO> getNotUniqueResults(List<StatisticalResultTO> result) {
         return result.stream().filter(r -> !r.isUnique()).collect(Collectors.toList());
+    }
+
+    public void normalizeData() {
+        calculate();
+
+        double min = Double.MAX_VALUE;
+        double max = Double.MIN_VALUE;
+        for (int i = 0; i < this.rowResults.size(); ++i) {
+            StatisticalResultTO result = rowResults.get(i);
+            if (result.getMaxValue() > max) {
+                max = result.getMaxValue();
+            }
+            if (result.getMinValue() < min) {
+                min = result.getMinValue();
+            }
+        }
+        final double MIN = min;
+        final double DIFF = max - min;
+
+        data.applyFunctionOnAllData(v -> (v - MIN) / DIFF);
+//        ((x - dataLow)
+//                / (dataHigh - dataLow))
+//                * (normalizedHigh - normalizedLow) + normalizedLow;
+
+
     }
 }

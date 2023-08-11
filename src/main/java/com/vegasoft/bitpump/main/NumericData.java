@@ -2,9 +2,11 @@ package com.vegasoft.bitpump.main;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 public class NumericData {
     private List<String> columnDescription;
@@ -45,6 +47,9 @@ public class NumericData {
                 throw new BitpumpException("Wrong data size!");
             }
         });
+        if (columnDescription.size() != dataColumnSize) {
+            throw new BitpumpException("Wrong column description size!");
+        }
     }
 
     public double[] getRow(int rowIndex) {
@@ -73,12 +78,10 @@ public class NumericData {
         return data.size();
     }
 
-    public void removeRowsWithIds(List<String> notUniqueRowsIds) {
-        for (int i = 0; i < notUniqueRowsIds.size(); ++i) {
-            int index = rowIds.indexOf(notUniqueRowsIds.get(i));
-            rowIds.remove(index);
-            data.remove(index);
-            timeStamps.remove(index);
+    public void removeRowsWithIds(List<String> rowsToBeRemoved) {
+        for (int i = 0; i < rowsToBeRemoved.size(); ++i) {
+            int index = rowIds.indexOf(rowsToBeRemoved.get(i));
+            removeRow(index);
         }
         doValidation();
     }
@@ -91,19 +94,60 @@ public class NumericData {
         int left = 0;
         for (; left < data.size() && right < nd_right.data.size(); ++left) {
             right = nd_right.findBestIndex(timeStamps.get(left), right);
-            mergeRow(left, nd_right, right);
+            mergeRowDataAndId(left, nd_right, right);
         }
         doValidation();
     }
 
-    private void mergeRow(int index, NumericData ndSource, int indexSource) {
-        double[] newData = ArrayUtils.addAll(data.get(index), ndSource.data.get(indexSource));
-        data.remove(index);
-        data.add(index, newData);
+    private void mergeRowDataAndId(int indexTarget, NumericData ndSource, int indexSource) {
+        double[] newData = ArrayUtils.addAll(data.get(indexTarget), ndSource.data.get(indexSource));
+        data.remove(indexTarget);
+        data.add(indexTarget, newData);
 
-        String rowId = rowIds.get(index);
+        String rowId = rowIds.get(indexTarget);
+        String rowIdSource = ndSource.rowIds.get(indexSource);
+        rowIds.remove(indexTarget);
+        rowIds.add(indexTarget, rowId + "_" + rowIdSource);
+    }
+
+    public void moveRowsIntoColumns(int numberOfRowsToJoin) {
+        if (numberOfRowsToJoin <= 1) {
+            // Nothing to be done!
+            return;
+        }
+
+        List<Integer> rowsToBeRemoved = new ArrayList<>();
+        for (int startRow = 0; startRow < data.size(); startRow += numberOfRowsToJoin) {
+            int actualRow = startRow;
+            if (data.size() - 1 - startRow < numberOfRowsToJoin) {
+                // Remove whole row if there is not enough data to be merged
+                rowsToBeRemoved.add(startRow);
+            }
+            for (int i = 0; i < numberOfRowsToJoin - 1 && actualRow < data.size() - 1; i++, actualRow++) {
+                int indexSource = actualRow + 1;
+                mergeRowDataAndId(startRow, this, indexSource);
+                // Since this row is copied, it's not needed any more
+                rowsToBeRemoved.add(indexSource);
+            }
+        }
+        // Remove source rows starting from last (otherwise index numbers will be wrong!)
+        for (int row = rowsToBeRemoved.size() - 1; row >= 0; --row) {
+            removeRow(rowsToBeRemoved.get(row));
+        }
+
+        // Update descriptions
+        List<String> originalColumnDescription = new ArrayList<>(columnDescription);
+        for (int i = 1; i < numberOfRowsToJoin; ++i) {
+            columnDescription.addAll(originalColumnDescription);
+        }
+
+        doValidation();
+    }
+
+    private void removeRow(int index) {
         rowIds.remove(index);
-        rowIds.add(index, rowId + "_" + ndSource.rowIds.get(indexSource));
+        data.remove(index);
+        timeStamps.remove(index);
     }
 
     private int findBestIndex(long timeStampToBeFound, int searchFromIndex) {
@@ -125,4 +169,14 @@ public class NumericData {
         }
         throw new BitpumpException("Can't find correct timestamp for " + timeStampToBeFound);
     }
+
+    public void applyFunctionOnAllData(Function<Double, Double> f) {
+        for (int i = 0; i < data.size(); ++i) {
+            double[] row = data.get(i);
+            for (int r = 0; r < row.length; ++r) {
+                row[r] = f.apply(row[r]);
+            }
+        }
+    }
+
 }

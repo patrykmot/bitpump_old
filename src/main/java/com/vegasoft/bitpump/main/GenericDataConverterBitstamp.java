@@ -1,7 +1,5 @@
 package com.vegasoft.bitpump.main;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 public class GenericDataConverterBitstamp extends GenericDataConverter {
 
     // Example of input data
@@ -11,10 +9,10 @@ public class GenericDataConverterBitstamp extends GenericDataConverter {
     private static final int PRICE_START_INDEX = 3;
     private static final int PRICE_STOP_INDEX = 7;
 
-    private static final AtomicLong ids = new AtomicLong(0);
+
 
     @Override
     public NumericData convert(GenericData genericData) {
-        return getNumericData(genericData, PRICE_START_INDEX, PRICE_STOP_INDEX, ids, s -> Long.parseLong(s) * 1000, 0);
+        return getNumericData(genericData, PRICE_START_INDEX, PRICE_STOP_INDEX, s -> Long.parseLong(s) * 1000, 0);
     }
 }

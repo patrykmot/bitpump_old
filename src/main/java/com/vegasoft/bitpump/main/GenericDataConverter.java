@@ -10,9 +10,11 @@ public abstract class GenericDataConverter {
 
     private static final int INITIAL_CAPACITY = 100;
 
+    private static final AtomicLong ids = new AtomicLong(0);
+
     abstract NumericData convert(GenericData genericData);
 
-    protected NumericData getNumericData(GenericData genericData, int priceStartIndex, int priceStopIndex, AtomicLong ids, Function<String, Long> timestampFunction, int timestampIndex) {
+    protected NumericData getNumericData(GenericData genericData, int priceStartIndex, int priceStopIndex, Function<String, Long> timestampFunction, int timestampIndex) {
         List<double[]> data = new ArrayList<>(INITIAL_CAPACITY);
         List<Long> timestamps = new ArrayList<>(INITIAL_CAPACITY);
         for (int row = 2; row < genericData.getRowCount(); ++row) {

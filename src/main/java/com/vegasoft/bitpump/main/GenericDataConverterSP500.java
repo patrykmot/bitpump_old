@@ -27,7 +27,7 @@ public class GenericDataConverterSP500 extends GenericDataConverter {
 
     @Override
     public NumericData convert(GenericData genericData) {
-        return getNumericData(genericData, PRICE_START_INDEX, PRICE_STOP_INDEX, ids, parseTimestamp, 0);
+        return getNumericData(genericData, PRICE_START_INDEX, PRICE_STOP_INDEX, parseTimestamp, 0);
     }
 
 
