@@ -22,7 +22,7 @@ public class NumericData {
         doValidation();
     }
 
-    private void doValidation() {
+    public void doValidation() {
         Set<String> setIds = new HashSet();
         setIds.addAll(rowIds);
         if (setIds.size() != data.size()) {
@@ -110,12 +110,27 @@ public class NumericData {
         rowIds.add(indexTarget, rowId + "_" + rowIdSource);
     }
 
+    private void mergeRowDataAndId(int indexTarget, int indexSource) {
+        mergeRowDataAndId(indexTarget, this, indexSource);
+        // Update timestamp, to be most recent one!
+        timeStamps.set(indexTarget, timeStamps.get(indexSource));
+    }
+
     public void moveRowsIntoColumns(int numberOfRowsToJoin) {
+        moveRowsIntoColumns(numberOfRowsToJoin, (t, s) -> mergeRowDataAndId(t, s));
+        // Update descriptions
+        List<String> originalColumnDescription = new ArrayList<>(columnDescription);
+        for (int i = 1; i < numberOfRowsToJoin; ++i) {
+            columnDescription.addAll(originalColumnDescription);
+        }
+        doValidation();
+    }
+
+    public void moveRowsIntoColumns(int numberOfRowsToJoin, MergeFunction mergeFunction) {
         if (numberOfRowsToJoin <= 1) {
             // Nothing to be done!
             return;
         }
-
         List<Integer> rowsToBeRemoved = new ArrayList<>();
         for (int startRow = 0; startRow < data.size(); startRow += numberOfRowsToJoin) {
             int actualRow = startRow;
@@ -125,7 +140,8 @@ public class NumericData {
             }
             for (int i = 0; i < numberOfRowsToJoin - 1 && actualRow < data.size() - 1; i++, actualRow++) {
                 int indexSource = actualRow + 1;
-                mergeRowDataAndId(startRow, this, indexSource);
+                mergeFunction.merge(startRow, indexSource);
+
                 // Since this row is copied, it's not needed any more
                 rowsToBeRemoved.add(indexSource);
             }
@@ -134,14 +150,6 @@ public class NumericData {
         for (int row = rowsToBeRemoved.size() - 1; row >= 0; --row) {
             removeRow(rowsToBeRemoved.get(row));
         }
-
-        // Update descriptions
-        List<String> originalColumnDescription = new ArrayList<>(columnDescription);
-        for (int i = 1; i < numberOfRowsToJoin; ++i) {
-            columnDescription.addAll(originalColumnDescription);
-        }
-
-        doValidation();
     }
 
     private void removeRow(int index) {
@@ -179,4 +187,18 @@ public class NumericData {
         }
     }
 
+    public long getTimeStamp(int i) {
+        return timeStamps.get(i);
+    }
+
+    public void updateRow(int i, double[] row) {
+        assert row.length == data.get(0).length;
+        data.remove(i);
+        data.add(i, row);
+    }
+
+    public void updateTimeStamp(int i, long timeStamp) {
+        timeStamps.remove(i);
+        timeStamps.add(i, timeStamp);
+    }
 }

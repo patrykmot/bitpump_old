@@ -192,10 +192,5 @@ public class StatisticAnalyze {
         final double DIFF = max - min;
 
         data.applyFunctionOnAllData(v -> (v - MIN) / DIFF);
-//        ((x - dataLow)
-//                / (dataHigh - dataLow))
-//                * (normalizedHigh - normalizedLow) + normalizedLow;
-
-
     }
 }

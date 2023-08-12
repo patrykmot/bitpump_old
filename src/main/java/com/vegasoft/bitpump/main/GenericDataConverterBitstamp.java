@@ -10,9 +10,13 @@ public class GenericDataConverterBitstamp extends GenericDataConverter {
     private static final int PRICE_STOP_INDEX = 7;
 
 
-
     @Override
     public NumericData convert(GenericData genericData) {
         return getNumericData(genericData, PRICE_START_INDEX, PRICE_STOP_INDEX, s -> Long.parseLong(s) * 1000, 0);
+    }
+
+    public CandleNumericData convertToCandles(GenericData genericData) {
+        NumericData nd = convert(genericData);
+        return new CandleNumericData(nd);
     }
 }

@@ -10,6 +10,8 @@ public class Utils {
     private static final Logger logger = LoggerFactory.getLogger(Utils.class);
 
     public static final String FILE_BITCOIN_CSV = "data/Bitstamp_BTCUSD_1h.csv";
+
+    public static final String FILE_BITCOIN_DAILY_CSV = "data/Bitstamp_BTCUSD_daily.csv";
     public static final String FILE_SP500_CSV = "data/SP500_HistoricalData_1691338508840.csv";
 
     public static Logger log() {
