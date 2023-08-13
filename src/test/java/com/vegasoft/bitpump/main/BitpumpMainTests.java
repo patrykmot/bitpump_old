@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 @SpringBootTest
 class BitpumpMainTests {
@@ -42,14 +43,17 @@ class BitpumpMainTests {
 
 		Utils.log().info("Move rows into columns");
 		data_bitcoin.moveRowsIntoColumns(5);
-		Utils.log().info("Extracting result values");
-		// Last candle CLOSE value is looked value!
-		NumericData resultData = data_bitcoin.extractLastColumn();
-		data_bitcoin.removeColumn(data_bitcoin.getColumnCount() - 1);
 
 		Utils.log().info("Move with one week candles");
 		data_bitcoin.mergeWithTimestamp(candleDataBitcoin1W.getNumericData());
 		statisticAnalyzeBTC.normalizeData();
+
+		Utils.log().info("Extracting result values");
+		// Last candle CLOSE value
+		NumericData resultData = data_bitcoin.extractColumn(data_bitcoin.getColumnCount() - 1 - 4);
+		// Remove last result for 1h candle (last 1h candle)
+		int start = data_bitcoin.getColumnCount() - 1 - 8;
+		IntStream.range(start, start + 4).forEach(i -> data_bitcoin.removeColumn(i));
 
 		// Stage II - Load and prepare S&P 500 prices
 		Utils.log().info("Merging bitcoin data with S&P 500");
@@ -62,6 +66,8 @@ class BitpumpMainTests {
 		// Merge S&P 500 into Bitcoin data
 		data_bitcoin.mergeWithTimestamp(data_SP500);
 		Utils.log().info("Done!");
+
+		TrainData td = new TrainData(data_bitcoin, resultData);
 
 		// TODO Split results into training / test / validation data and save it to CSV -> Then teach AI network with it!
 

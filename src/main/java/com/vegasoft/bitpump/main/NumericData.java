@@ -204,6 +204,10 @@ public class NumericData {
 
     public NumericData extractLastColumn() {
         int columnIndex = columnDescription.size() - 1;
+        return extractColumn(columnIndex);
+    }
+
+    public NumericData extractColumn(int columnIndex) {
         double[] rowValuesInColumn = getColumn(columnIndex);
         List<double[]> extractedRows = new ArrayList<>();
 
@@ -211,7 +215,7 @@ public class NumericData {
             extractedRows.add(new double[]{rowValuesInColumn[i]});
         }
         NumericData extractedND = new NumericData(columnDescription.subList(columnIndex, columnIndex + 1), extractedRows,
-                getFullSublist(rowIds), rowTimeStamps.subList(0, rowTimeStamps.size())); //!!!!!
+                getFullSublist(rowIds), rowTimeStamps.subList(0, rowTimeStamps.size()));
         return extractedND;
     }
 
@@ -240,5 +244,10 @@ public class NumericData {
             }
         }
         return updatedValue;
+    }
+
+    public NumericData extractRows(int startRow, int endRow) {
+
+        return null;
     }
 }
