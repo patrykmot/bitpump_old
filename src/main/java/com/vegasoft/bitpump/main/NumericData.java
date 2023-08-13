@@ -10,39 +10,39 @@ import java.util.function.Function;
 
 public class NumericData {
     private List<String> columnDescription;
-    private List<double[]> data; // data row list
+    private List<double[]> rowData;
     private List<String> rowIds;
-    private List<Long> timeStamps;
+    private List<Long> rowTimeStamps;
 
-    public NumericData(List<String> columnDescription, List<double[]> data, List<String> rowIds, List<Long> timeStamps) {
+    public NumericData(List<String> columnDescription, List<double[]> data, List<String> rowIds, List<Long> rowTimeStamps) {
         this.columnDescription = columnDescription;
-        this.data = data;
+        this.rowData = data;
         this.rowIds = rowIds;
-        this.timeStamps = timeStamps;
+        this.rowTimeStamps = rowTimeStamps;
         doValidation();
     }
 
     public void doValidation() {
         Set<String> setIds = new HashSet();
         setIds.addAll(rowIds);
-        if (setIds.size() != data.size()) {
+        if (setIds.size() != rowData.size()) {
             throw new BitpumpException("Row ids are not unique!");
         }
-        if (rowIds.size() != data.size()) {
+        if (rowIds.size() != rowData.size()) {
             throw new BitpumpException("Size of ids and data are different!");
         }
-        if (timeStamps.size() != data.size()) {
+        if (rowTimeStamps.size() != rowData.size()) {
             throw new BitpumpException("Size of timeStamp and data are different!");
         }
-        long tPref = timeStamps.get(0);
-        for (int i = 1; i < timeStamps.size(); ++i) {
-            if (tPref < timeStamps.get(i)) {
+        long tPref = rowTimeStamps.get(0);
+        for (int i = 1; i < rowTimeStamps.size(); ++i) {
+            if (tPref < rowTimeStamps.get(i)) {
                 throw new BitpumpException("Timestamps are not properly sorted! It should be descending!");
             }
-            tPref = timeStamps.get(i);
+            tPref = rowTimeStamps.get(i);
         }
-        int dataColumnSize = data.get(0).length;
-        data.forEach(d -> {
+        int dataColumnSize = rowData.get(0).length;
+        rowData.forEach(d -> {
             if (d.length != dataColumnSize) {
                 throw new BitpumpException("Wrong data size!");
             }
@@ -53,7 +53,7 @@ public class NumericData {
     }
 
     public double[] getRow(int rowIndex) {
-        return data.get(rowIndex);
+        return rowData.get(rowIndex);
     }
 
     public String getRowId(int rowIndex) {
@@ -64,18 +64,18 @@ public class NumericData {
         int columnLength = getRowCount();
         double[] column = new double[columnLength];
 
-        for (int i = 0; i < data.size(); ++i) {
-            column[i] = data.get(i)[columnIndex];
+        for (int i = 0; i < rowData.size(); ++i) {
+            column[i] = rowData.get(i)[columnIndex];
         }
         return column;
     }
 
     public int getColumnCount() {
-        return data.get(0).length;
+        return rowData.get(0).length;
     }
 
     public int getRowCount() {
-        return data.size();
+        return rowData.size();
     }
 
     public void removeRowsWithIds(List<String> rowsToBeRemoved) {
@@ -92,17 +92,17 @@ public class NumericData {
         // Perquisite: Timestamps are sorted in same way!
         int right = 0;
         int left = 0;
-        for (; left < data.size() && right < nd_right.data.size(); ++left) {
-            right = nd_right.findBestIndex(timeStamps.get(left), right);
+        for (; left < rowData.size() && right < nd_right.rowData.size(); ++left) {
+            right = nd_right.findBestIndex(rowTimeStamps.get(left), right);
             mergeRowDataAndId(left, nd_right, right);
         }
         doValidation();
     }
 
     private void mergeRowDataAndId(int indexTarget, NumericData ndSource, int indexSource) {
-        double[] newData = ArrayUtils.addAll(data.get(indexTarget), ndSource.data.get(indexSource));
-        data.remove(indexTarget);
-        data.add(indexTarget, newData);
+        double[] newData = ArrayUtils.addAll(rowData.get(indexTarget), ndSource.rowData.get(indexSource));
+        rowData.remove(indexTarget);
+        rowData.add(indexTarget, newData);
 
         String rowId = rowIds.get(indexTarget);
         String rowIdSource = ndSource.rowIds.get(indexSource);
@@ -113,7 +113,7 @@ public class NumericData {
     private void mergeRowDataAndId(int indexTarget, int indexSource) {
         mergeRowDataAndId(indexTarget, this, indexSource);
         // Update timestamp, to be most recent one!
-        timeStamps.set(indexTarget, timeStamps.get(indexSource));
+        rowTimeStamps.set(indexTarget, rowTimeStamps.get(indexSource));
     }
 
     public void moveRowsIntoColumns(int numberOfRowsToJoin) {
@@ -132,13 +132,13 @@ public class NumericData {
             return;
         }
         List<Integer> rowsToBeRemoved = new ArrayList<>();
-        for (int startRow = 0; startRow < data.size(); startRow += numberOfRowsToJoin) {
+        for (int startRow = 0; startRow < rowData.size(); startRow += numberOfRowsToJoin) {
             int actualRow = startRow;
-            if (data.size() - 1 - startRow < numberOfRowsToJoin) {
+            if (rowData.size() - 1 - startRow < numberOfRowsToJoin) {
                 // Remove whole row if there is not enough data to be merged
                 rowsToBeRemoved.add(startRow);
             }
-            for (int i = 0; i < numberOfRowsToJoin - 1 && actualRow < data.size() - 1; i++, actualRow++) {
+            for (int i = 0; i < numberOfRowsToJoin - 1 && actualRow < rowData.size() - 1; i++, actualRow++) {
                 int indexSource = actualRow + 1;
                 mergeFunction.merge(startRow, indexSource);
 
@@ -154,20 +154,20 @@ public class NumericData {
 
     private void removeRow(int index) {
         rowIds.remove(index);
-        data.remove(index);
-        timeStamps.remove(index);
+        rowData.remove(index);
+        rowTimeStamps.remove(index);
     }
 
     private int findBestIndex(long timeStampToBeFound, int searchFromIndex) {
         // Search closes timestamps
-        for (int i = searchFromIndex; i < timeStamps.size(); ++i) {
-            if (timeStamps.get(i) <= timeStampToBeFound) {
+        for (int i = searchFromIndex; i < rowTimeStamps.size(); ++i) {
+            if (rowTimeStamps.get(i) <= timeStampToBeFound) {
                 // This one is first smallest one
                 int result = i;
                 if (i > 1) {
                     // Check if previous is closer
-                    long diff = Math.abs(timeStamps.get(i) - timeStampToBeFound);
-                    long diffPrev = Math.abs(timeStamps.get(i - 1) - timeStampToBeFound);
+                    long diff = Math.abs(rowTimeStamps.get(i) - timeStampToBeFound);
+                    long diffPrev = Math.abs(rowTimeStamps.get(i - 1) - timeStampToBeFound);
                     if (diff > diffPrev) {
                         result = i - 1;
                     }
@@ -179,8 +179,8 @@ public class NumericData {
     }
 
     public void applyFunctionOnAllData(Function<Double, Double> f) {
-        for (int i = 0; i < data.size(); ++i) {
-            double[] row = data.get(i);
+        for (int i = 0; i < rowData.size(); ++i) {
+            double[] row = rowData.get(i);
             for (int r = 0; r < row.length; ++r) {
                 row[r] = f.apply(row[r]);
             }
@@ -188,17 +188,57 @@ public class NumericData {
     }
 
     public long getTimeStamp(int i) {
-        return timeStamps.get(i);
+        return rowTimeStamps.get(i);
     }
 
     public void updateRow(int i, double[] row) {
-        assert row.length == data.get(0).length;
-        data.remove(i);
-        data.add(i, row);
+        assert row.length == rowData.get(0).length;
+        rowData.remove(i);
+        rowData.add(i, row);
     }
 
     public void updateTimeStamp(int i, long timeStamp) {
-        timeStamps.remove(i);
-        timeStamps.add(i, timeStamp);
+        rowTimeStamps.remove(i);
+        rowTimeStamps.add(i, timeStamp);
+    }
+
+    public NumericData extractLastColumn() {
+        int columnIndex = columnDescription.size() - 1;
+        double[] rowValuesInColumn = getColumn(columnIndex);
+        List<double[]> extractedRows = new ArrayList<>();
+
+        for (int i = 0; i < rowData.size(); ++i) {
+            extractedRows.add(new double[]{rowValuesInColumn[i]});
+        }
+        NumericData extractedND = new NumericData(columnDescription.subList(columnIndex, columnIndex + 1), extractedRows,
+                getFullSublist(rowIds), rowTimeStamps.subList(0, rowTimeStamps.size())); //!!!!!
+        return extractedND;
+    }
+
+    private List<String> getFullSublist(List<String> l) {
+        return l.subList(0, l.size());
+    }
+
+    public void removeColumn(int indexToBeRemoved) {
+        columnDescription.remove(indexToBeRemoved);
+        List<double[]> updatedList = new ArrayList<>(rowData.size());
+        for (int i = 0; i < rowData.size(); ++i) {
+            updatedList.add(removeColumnFromArray(rowData.get(i), indexToBeRemoved));
+        }
+        rowData.clear();
+        rowData.addAll(updatedList);
+        doValidation();
+    }
+
+    private double[] removeColumnFromArray(double[] doubles, int columnIndex) {
+        double[] updatedValue = new double[doubles.length - 1];
+        int newIndex = 0;
+        for (int i = 0; i < doubles.length; ++i) {
+            if (i != columnIndex) {
+                updatedValue[newIndex] = doubles[i];
+                newIndex++;
+            }
+        }
+        return updatedValue;
     }
 }

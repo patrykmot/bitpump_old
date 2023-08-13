@@ -42,6 +42,11 @@ class BitpumpMainTests {
 
 		Utils.log().info("Move rows into columns");
 		data_bitcoin.moveRowsIntoColumns(5);
+		Utils.log().info("Extracting result values");
+		// Last candle CLOSE value is looked value!
+		NumericData resultData = data_bitcoin.extractLastColumn();
+		data_bitcoin.removeColumn(data_bitcoin.getColumnCount() - 1);
+
 		Utils.log().info("Move with one week candles");
 		data_bitcoin.mergeWithTimestamp(candleDataBitcoin1W.getNumericData());
 		statisticAnalyzeBTC.normalizeData();
