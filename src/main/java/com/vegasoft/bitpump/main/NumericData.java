@@ -1,12 +1,11 @@
 package com.vegasoft.bitpump.main;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import org.apache.commons.lang3.ArrayUtils;
 
 public class NumericData {
     private List<String> columnDescription;
@@ -207,6 +206,10 @@ public class NumericData {
         return extractColumn(columnIndex);
     }
 
+    private static <T> List<T> getSubList(int startIndex, int lastIndex, List<T> l) {
+        return new ArrayList<>(l.subList(startIndex, lastIndex));
+    }
+
     public NumericData extractColumn(int columnIndex) {
         double[] rowValuesInColumn = getColumn(columnIndex);
         List<double[]> extractedRows = new ArrayList<>();
@@ -214,13 +217,21 @@ public class NumericData {
         for (int i = 0; i < rowData.size(); ++i) {
             extractedRows.add(new double[]{rowValuesInColumn[i]});
         }
-        NumericData extractedND = new NumericData(columnDescription.subList(columnIndex, columnIndex + 1), extractedRows,
-                getFullSublist(rowIds), rowTimeStamps.subList(0, rowTimeStamps.size()));
+        int rowStartIndex = 0;
+        int rowLastIndex = rowData.size();
+        int columnStartIndex = columnIndex;
+        int columnLastIndex = columnIndex + 1;
+
+        NumericData extractedND = extractNumericData(extractedRows, rowStartIndex, rowLastIndex, columnStartIndex, columnLastIndex);
         return extractedND;
     }
 
-    private List<String> getFullSublist(List<String> l) {
-        return l.subList(0, l.size());
+    private NumericData extractNumericData(List<double[]> extractedRows, int rowStartIndex, int rowLastIndex, int columnStartIndex, int columnLastIndex) {
+        NumericData extractedND = new NumericData(getSubList(columnStartIndex, columnLastIndex, columnDescription),
+                                                  getSubList(rowStartIndex, rowLastIndex, extractedRows),
+                                                  getSubList(rowStartIndex, rowLastIndex, rowIds),
+                                                  getSubList(rowStartIndex, rowLastIndex, rowTimeStamps));
+        return extractedND;
     }
 
     public void removeColumn(int indexToBeRemoved) {
@@ -247,7 +258,7 @@ public class NumericData {
     }
 
     public NumericData extractRows(int startRow, int endRow) {
-
-        return null;
+        NumericData extractedND = extractNumericData(rowData, startRow, endRow, 0, columnDescription.size());
+        return extractedND;
     }
 }

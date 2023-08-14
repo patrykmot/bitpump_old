@@ -1,11 +1,10 @@
 package com.vegasoft.bitpump.main;
 
+import java.util.List;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.List;
-import java.util.stream.IntStream;
 
 @SpringBootTest
 class BitpumpMainTests {
@@ -51,6 +50,7 @@ class BitpumpMainTests {
 		Utils.log().info("Extracting result values");
 		// Last candle CLOSE value
 		NumericData resultData = data_bitcoin.extractColumn(data_bitcoin.getColumnCount() - 1 - 4);
+		Assertions.assertEquals(data_bitcoin.getRowCount(), resultData.getRowCount(), "Bad amount of rows copied.");
 		// Remove last result for 1h candle (last 1h candle)
 		int start = data_bitcoin.getColumnCount() - 1 - 8;
 		IntStream.range(start, start + 4).forEach(i -> data_bitcoin.removeColumn(i));
@@ -68,8 +68,9 @@ class BitpumpMainTests {
 		Utils.log().info("Done!");
 
 		TrainData td = new TrainData(data_bitcoin, resultData);
+		td.getTrainInput();
 
-		// TODO Split results into training / test / validation data and save it to CSV -> Then teach AI network with it!
+		// TODO export it to csv
 
 	}
 

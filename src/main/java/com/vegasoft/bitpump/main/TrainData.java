@@ -25,7 +25,31 @@ public class TrainData {
         trainOutput = output.extractRows(0, trainingIndex);
         verificationInput = input.extractRows(trainingIndex + 1, verificationIndex);
         verificationOutput = output.extractRows(trainingIndex + 1, verificationIndex);
-        verificationInput = input.extractRows(verificationIndex + 1, all - 1);
-        verificationOutput = output.extractRows(verificationIndex + 1, all - 1);
+        validationInput = input.extractRows(verificationIndex + 1, all - 1);
+        validationOutput = output.extractRows(verificationIndex + 1, all - 1);
+    }
+
+    public NumericData getTrainInput() {
+        return trainInput;
+    }
+
+    public NumericData getTrainOutput() {
+        return trainOutput;
+    }
+
+    public NumericData getVerificationInput() {
+        return verificationInput;
+    }
+
+    public NumericData getVerificationOutput() {
+        return verificationOutput;
+    }
+
+    public NumericData getValidationInput() {
+        return validationInput;
+    }
+
+    public NumericData getValidationOutput() {
+        return validationOutput;
     }
 }
