@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class NumericData {
@@ -20,6 +21,10 @@ public class NumericData {
         this.rowIds = rowIds;
         this.rowTimeStamps = rowTimeStamps;
         doValidation();
+    }
+
+    public void forEachDataRow(Consumer<double[]> c) {
+        rowData.forEach(c);
     }
 
     public void doValidation() {
@@ -214,13 +219,9 @@ public class NumericData {
         for (int i = 0; i < rowData.size(); ++i) {
             extractedRows.add(new double[]{rowValuesInColumn[i]});
         }
-        NumericData extractedND = new NumericData(columnDescription.subList(columnIndex, columnIndex + 1), extractedRows,
-                getFullSublist(rowIds), rowTimeStamps.subList(0, rowTimeStamps.size()));
+        NumericData extractedND = new NumericData(Utils.getSubList(columnDescription, columnIndex, columnIndex + 1), extractedRows,
+                new ArrayList<>(rowIds), new ArrayList<>(rowTimeStamps));
         return extractedND;
-    }
-
-    private List<String> getFullSublist(List<String> l) {
-        return l.subList(0, l.size());
     }
 
     public void removeColumn(int indexToBeRemoved) {
@@ -247,7 +248,11 @@ public class NumericData {
     }
 
     public NumericData extractRows(int startRow, int endRow) {
+        return new NumericData(new ArrayList<>(columnDescription), Utils.getSubList(rowData, startRow, endRow),
+                Utils.getSubList(rowIds, startRow, endRow), Utils.getSubList(rowTimeStamps, startRow, endRow));
+    }
 
-        return null;
+    public List<String> getColumnDescriptions() {
+        return this.columnDescription;
     }
 }

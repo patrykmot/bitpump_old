@@ -50,7 +50,7 @@ class BitpumpMainTests {
 
 		Utils.log().info("Extracting result values");
 		// Last candle CLOSE value
-		NumericData resultData = data_bitcoin.extractColumn(data_bitcoin.getColumnCount() - 1 - 4);
+		NumericData data_bitcoin_result = data_bitcoin.extractColumn(data_bitcoin.getColumnCount() - 1 - 4);
 		// Remove last result for 1h candle (last 1h candle)
 		int start = data_bitcoin.getColumnCount() - 1 - 8;
 		IntStream.range(start, start + 4).forEach(i -> data_bitcoin.removeColumn(i));
@@ -65,12 +65,17 @@ class BitpumpMainTests {
 
 		// Merge S&P 500 into Bitcoin data
 		data_bitcoin.mergeWithTimestamp(data_SP500);
+
+		data_bitcoin.mergeWithTimestamp(data_bitcoin_result);
+
+		TrainData td = new TrainData(data_bitcoin);
+
+		NumericDataOut numericDataOut = new NumericDataOut();
+
+		numericDataOut.save(td.getDataTrain(), "Bitcoin_train.csv");
+		numericDataOut.save(td.getDataVerification(), "Bitcoin_verification.csv");
+		numericDataOut.save(td.getDataValidation(), "Bitcoin_validation.csv");
 		Utils.log().info("Done!");
-
-		TrainData td = new TrainData(data_bitcoin, resultData);
-
-		// TODO Split results into training / test / validation data and save it to CSV -> Then teach AI network with it!
-
 	}
 
 }

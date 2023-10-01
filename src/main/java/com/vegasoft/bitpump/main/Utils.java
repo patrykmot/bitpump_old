@@ -3,7 +3,12 @@ package com.vegasoft.bitpump.main;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Utils {
 
@@ -25,5 +30,17 @@ public class Utils {
             throw new BitpumpException("Can't open file " + fileName);
         }
         return is;
+    }
+
+    public static OutputStream openFileToWrite(String path) {
+        try {
+            return new FileOutputStream(path, false);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException("Can't open file" + path, e);
+        }
+    }
+
+    public static <T> List<T> getSubList(List<T> list, int startIndex, int endIndex) {
+        return new ArrayList<>(list.subList(startIndex, endIndex));
     }
 }

@@ -7,7 +7,7 @@ class CSVLoaderTest {
 
     @Test
     public void testIt() {
-        CSVLoader loader = new CSVLoader();
+        CSVDoor loader = new CSVDoor();
         GenericData gd = loader.readCSV(Utils.FILE_BITCOIN_CSV);
 
         Assertions.assertNotNull(gd);
