@@ -212,6 +212,10 @@ public class NumericData {
         return extractColumn(columnIndex);
     }
 
+    private static <T> List<T> getSubList(int startIndex, int lastIndex, List<T> l) {
+        return new ArrayList<>(l.subList(startIndex, lastIndex));
+    }
+
     public NumericData extractColumn(int columnIndex) {
         double[] rowValuesInColumn = getColumn(columnIndex);
         List<double[]> extractedRows = new ArrayList<>();
